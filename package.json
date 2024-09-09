@@ -1,7 +1,7 @@
 {
   "name": "oceans-guardian",
   "version": "1.0.0",
-  "description": "A Discord bot",
+  "description": "",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
