@@ -1,17 +1,13 @@
 {
-  "name": "nodejs",
+  "name": "oceans-guardian",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A Discord bot",
+  "main": "bot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node bot.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@types/node": "^18.0.6",
-    "discord.js": "^14.16.1",
-    "dotenv": "^16.4.5"
+    "discord.js": "^14.0.0",
+    "dotenv": "^16.0.0"
   }
 }
