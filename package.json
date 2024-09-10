@@ -2,11 +2,13 @@
   "name": "oceans-guardian",
   "version": "1.0.0",
   "description": "",
-  "main": "bot.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node bot.js"
+    "start": "node index.js"
   },
   "dependencies": {
+    "@discordjs/rest": "^2.4.0",
+    "discord-api-types": "^0.37.100",
     "discord.js": "^14.16.1",
     "dotenv": "^16.4.5",
     "express": "^4.20.0"
