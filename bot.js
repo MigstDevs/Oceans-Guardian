@@ -1,6 +1,8 @@
-import { Client, GatewayIntentBits, REST, Routes, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { config } from 'dotenv';
-import { setTimeout } from 'node:timers/promises';
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { config } = require('dotenv');
+const { setTimeout } = require('node:timers/promises');
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
 
 config(); // Load environment variables
 
