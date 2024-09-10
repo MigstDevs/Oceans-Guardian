@@ -3,7 +3,7 @@ const { config } = require('dotenv');
 const { setTimeout } = require('node:timers/promises');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-import express from 'express';
+const { express } = require('express');
 
 config(); // Load environment variables
 const app = express();
