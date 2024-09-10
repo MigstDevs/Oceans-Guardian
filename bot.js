@@ -3,8 +3,10 @@ const { config } = require('dotenv');
 const { setTimeout } = require('node:timers/promises');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
+import express from 'express';
 
 config(); // Load environment variables
+const app = express();
 
 const token = process.env.token;
 const clientId = process.env.clientId;
@@ -15,6 +17,14 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
   ],
+});
+
+app.listen(3000, () => {
+  console.log("ah");
+});
+
+app.get("/", (req, res) => {
+  res.send("bah");
 });
 
 const commands = [
