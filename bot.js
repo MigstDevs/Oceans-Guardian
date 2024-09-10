@@ -1,6 +1,6 @@
-import { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { config } from 'dotenv';
-import express from 'express';
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { config } = require('dotenv');
+const express = require('express');
 
 config(); // Load environment variables from .env file
 const app = express();
