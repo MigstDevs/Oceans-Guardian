@@ -1,6 +1,7 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, REST, Routes } = require('discord.js');
 const { config } = require('dotenv');
 const express = require('express');
+const fs = require('fs');
 
 config(); // Load environment variables from .env file
 const app = express();
@@ -15,6 +16,60 @@ const client = new Client({
     GatewayIntentBits.GuildMembers
   ],
 });
+
+// Register commands
+const commands = [
+  {
+    name: 'sorteio',
+    description: 'Inicia um sorteio!',
+    options: [
+      {
+        name: 'titulo',
+        description: 'Título do sorteio',
+        type: 3, // STRING
+        required: true
+      },
+      {
+        name: 'descricao',
+        description: 'Descrição do sorteio',
+        type: 3, // STRING
+        required: false
+      },
+      {
+        name: 'duracao',
+        description: 'Duração do sorteio em minutos',
+        type: 4, // INTEGER
+        required: true
+      },
+      {
+        name: 'vencedores',
+        description: 'Número de vencedores',
+        type: 4, // INTEGER
+        required: true
+      },
+      {
+        name: 'imagem',
+        description: 'URL da imagem para o sorteio',
+        type: 3, // STRING
+        required: false
+      }
+    ]
+  }
+];
+
+const rest = new REST({ version: '10' }).setToken(token);
+
+(async () => {
+  try {
+    console.log('Começando a atualizar os comandos de barra...');
+    await rest.put(Routes.applicationCommands(clientId), {
+      body: commands,
+    });
+    console.log('Comandos de barra atualizados com sucesso!');
+  } catch (error) {
+    console.error('Erro ao atualizar comandos de barra:', error);
+  }
+})();
 
 app.listen(3000, () => {
   console.log("🎉 Bot do Sorteio online!");
