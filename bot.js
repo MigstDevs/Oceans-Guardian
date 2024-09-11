@@ -66,20 +66,20 @@ const commands = [
   },
 ];
 
-const rest = new REST({ version: '10' }).setToken(token);
+const rest = new REST({ version: "10" }).setToken(token);
 
-(async () => {
-  try {
-    console.log('Atualizando comandos de barra...');
-    await rest.put(Routes.applicationCommands(clientId), { body: commands });
-    console.log('Comandos de barra atualizados com sucesso!');
-  } catch (error) {
-    console.error('Erro ao atualizar comandos de barra:', error);
-  }
-})();
-
-client.on('ready', () => {
+client.on('ready', async () => { 
   console.log(`O bot está online como ${client.user.tag}`);
+  try {
+    console.log("Comecei a atualizar os comandos barra.");
+    await rest.put(Routes.applicationCommands(clientId), {      
+      body: commands,
+    });
+
+    console.log("Terminei de atualizar os comandos barra.");
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 client.on('interactionCreate', async (interaction) => {
@@ -117,7 +117,7 @@ client.on('interactionCreate', async (interaction) => {
 
     await interaction.reply({ embeds: [giveawayEmbed], components: [row] });
 
-    // Set a timeout to close the giveaway after the duration
+ // Set a timeout to close the giveaway after the duration
     await setTimeout(duration * 60000);
     await interaction.editReply({ content: '⏳ O sorteio terminou!', components: [] });
   }

@@ -1,4 +1,4 @@
-entrypoint = "index.js"
+entrypoint = "bot.js"
 modules = ["nodejs-20"]
 hidden = [".config", "package-lock.json"]
 
@@ -12,7 +12,7 @@ channel = "stable-24_05"
 language = "nodejs"
 
 [deployment]
-run = ["node", "index.js"]
+run = ["node", "bot.js"]
 deploymentTarget = "cloudrun"
 ignorePorts = false
 
