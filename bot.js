@@ -39,12 +39,6 @@ const commands = [
         required: true,
       },
       {
-        name: 'descricao',
-        description: 'Descrição do sorteio',
-        type: 3, // STRING
-        required: false,
-      },
-      {
         name: 'duracao',
         description: 'Duração do sorteio em minutos',
         type: 4, // INTEGER
@@ -57,6 +51,12 @@ const commands = [
         required: true,
       },
       {
+        name: 'descricao',
+        description: 'Descrição do sorteio',
+        type: 3, // STRING
+        required: false,
+      },
+      {
         name: 'imagem',
         description: 'URL da imagem para o sorteio',
         type: 3, // STRING
@@ -65,6 +65,7 @@ const commands = [
     ],
   },
 ];
+
 
 const rest = new REST({ version: "10" }).setToken(token);
 
