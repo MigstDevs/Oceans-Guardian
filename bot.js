@@ -236,28 +236,27 @@ client.on('interactionCreate', async (interaction) => {
     // Update the participant count on the "🧑Participantes" button
     const newParticipantCount = participants.size;
 
-    if (oldParticipantCount !== newParticipantCount) {
-      const updatedParticipantsButton = new ButtonBuilder()
-        .setCustomId(`${giveawayId}_participants`)
-        .setLabel('🧑Participantes')
-        .setStyle(ButtonStyle.Secondary);
+    // Regenerate the buttons to prevent expiration
+    const updatedParticipantsButton = new ButtonBuilder()
+      .setCustomId(`${giveawayId}_participants`)
+      .setLabel('🧑Participantes')
+      .setStyle(ButtonStyle.Secondary);
 
-      const updatedParticipateButton = new ButtonBuilder()
-        .setCustomId(giveawayId)
-        .setLabel('🎊 Participar')
-        .setStyle(ButtonStyle.Primary);
+    const updatedParticipateButton = new ButtonBuilder()
+      .setCustomId(giveawayId)
+      .setLabel('🎊 Participar')
+      .setStyle(ButtonStyle.Primary);
 
-      const updatedRow = new ActionRowBuilder().addComponents(updatedParticipateButton, updatedParticipantsButton);
+    const updatedRow = new ActionRowBuilder().addComponents(updatedParticipateButton, updatedParticipantsButton);
 
-      await giveawayData.interaction.editReply({
-        embeds: [giveawayData.interaction.message.embeds[0]],
-        components: [updatedRow],
-      });
-    }
+    await giveawayData.interaction.editReply({
+      embeds: [giveawayData.interaction.message.embeds[0]],
+      components: [updatedRow],
+    });
   }
 });
 
-// Select winners with the special role getting 3x chance to win
+// Select winners
 function selectWinners(participants, numWinners, guild) {
   const winners = [];
   const participantEntries = [];
