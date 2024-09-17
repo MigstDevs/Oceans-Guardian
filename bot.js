@@ -99,33 +99,34 @@ client.on('ready', async () => {
 });
 
 client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isCommand() && !interaction.isButton()) return;
-
-  // Handle giveaway command
   if (interaction.isCommand()) {
     const { commandName, options } = interaction;
-
     if (commandName === 'sorteio') {
       const title = options.getString('titulo');
       const description = options.getString('descricao') || 'Nenhuma descrição fornecida.';
-      const duration = options.getInteger('duracao');
+      const duration = options.getInteger('duracao') * 60000; // Convert minutes to ms
       const winners = options.getInteger('vencedores');
       const imageUrl = options.getString('imagem') || null;
 
       const giveawayId = `giveaway-${interaction.id}`;
       const participants = new Set();
 
-      const endTime = Date.now() + duration * 60000;
+      giveaways[giveawayId] = {
+        participants: Array.from(participants),
+        winners,
+        endTime: Date.now() + duration,
+        channelId: interaction.channel.id,
+        messageId: interaction.id,
+      };
+      saveGiveaways();
 
       const giveawayEmbed = new EmbedBuilder()
         .setTitle(`**${title}**`)
         .setDescription(description)
         .setColor(0x00FF00)
-        .setFooter({ text: `Participar clicando no botão abaixo!` });
+        .setFooter({ text: 'Participar clicando no botão abaixo!' });
 
-      if (imageUrl) {
-        giveawayEmbed.setImage(imageUrl);
-      }
+      if (imageUrl) giveawayEmbed.setImage(imageUrl);
 
       const participateButton = new ButtonBuilder()
         .setCustomId(giveawayId)
@@ -140,79 +141,34 @@ client.on('interactionCreate', async (interaction) => {
       const row = new ActionRowBuilder().addComponents(participateButton, participantsButton);
 
       await interaction.reply({ embeds: [giveawayEmbed], components: [row] });
-
-      // Store the giveaway information
-      activeGiveaways.set(giveawayId, { participants, winners, endTime, interaction });
     }
+  } else if (interaction.isButton()) {
+    const [giveawayId, action] = interaction.customId.split('_');
+    const giveaway = giveaways[giveawayId];
 
-    // Handle reroll command
-    if (commandName === 'reroll') {
-      const messageId = options.getString('message_id');
-      const targetMessage = await interaction.channel.messages.fetch(messageId).catch(() => null);
-
-      if (!targetMessage) {
-        return interaction.reply({ content: 'Mensagem de sorteio não encontrada!', ephemeral: true });
-      }
-
-      const giveawayData = Array.from(activeGiveaways.values()).find(g => g.interaction.id === messageId);
-
-      if (!giveawayData) {
-        return interaction.reply({ content: 'Este sorteio não possui dados de participantes ou já terminou.', ephemeral: true });
-      }
-
-      const participantList = Array.from(giveawayData.participants);
-      if (participantList.length === 0) {
-        return interaction.reply({ content: 'Nenhum participante encontrado.', ephemeral: true });
-      }
-
-      const finalWinners = selectWinners(participantList, giveawayData.winners, interaction.guild);
-      const winnerMentions = finalWinners.length
-        ? finalWinners.map(w => `<@${w.id}>`).join(', ')
-        : 'Nenhum participante.';
-
-      await targetMessage.edit({
-        content: `🎉 O sorteio foi refeito! Novos vencedores: ${winnerMentions}`,
-      });
-
-      interaction.reply({ content: `O sorteio foi refeito! Novos vencedores: ${winnerMentions}`, ephemeral: true });
-    }
-  }
-
-  // Handle button interaction for giveaway participants
-  if (interaction.isButton()) {
-    const giveawayId = interaction.customId.split('_')[0];
-    const giveawayData = activeGiveaways.get(giveawayId);
-
-    if (!giveawayData) {
-      return interaction.reply({ content: 'O sorteio já terminou.', ephemeral: true });
-    }
+    if (!giveaway) return interaction.reply({ content: 'O sorteio já terminou.', ephemeral: true });
 
     const userId = interaction.user.id;
-    const participants = giveawayData.participants;
 
-    if (interaction.customId.endsWith('_participants')) {
-      const participantList = Array.from(participants);
-      const participantMentions = participantList.length
-        ? participantList.map(p => `<@${p}>`).join('\n')
+    if (action === 'participants') {
+      const participantMentions = giveaway.participants.length
+        ? giveaway.participants.map(p => `<@${p}>`).join('\n')
         : 'Nenhum participante ainda.';
 
-      await interaction.reply({
-        content: `Tem ${participantList.length} participante(s) neste sorteio, que são:\n${participantMentions}`,
-        ephemeral: true,
-      });
+      await interaction.reply({ content: `Participantes:\n${participantMentions}`, ephemeral: true });
     } else {
-      if (participants.has(userId)) {
-        participants.delete(userId);
+      if (giveaway.participants.includes(userId)) {
+        giveaway.participants = giveaway.participants.filter(p => p !== userId);
         await interaction.reply({ content: 'Você saiu do sorteio.', ephemeral: true });
       } else {
-        participants.add(userId);
+        giveaway.participants.push(userId);
         await interaction.reply({ content: 'Você entrou no sorteio.', ephemeral: true });
       }
 
-      // Update the participant count on the "🧑Participantes" button
+      // Update the participant count on the button
       const updatedParticipantsButton = new ButtonBuilder()
         .setCustomId(`${giveawayId}_participants`)
-        .setLabel(`🧑Participantes (${participants.size})`)
+        .setLabel(`🧑Participantes (${giveaway.participants.length})`)
         .setStyle(ButtonStyle.Secondary);
 
       const updatedParticipateButton = new ButtonBuilder()
@@ -220,12 +176,11 @@ client.on('interactionCreate', async (interaction) => {
         .setLabel('🎊 Participar')
         .setStyle(ButtonStyle.Primary);
 
-      const updatedRow = new ActionRowBuilder().addComponents(updatedParticipateButton, updatedParticipantsButton);
-
-      await interaction.message.edit({
-        components: [updatedRow],
-      });
+      const row = new ActionRowBuilder().addComponents(updatedParticipateButton, updatedParticipantsButton);
+      await interaction.message.edit({ components: [row] });
     }
+
+    saveGiveaways();
   }
 });
 
