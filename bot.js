@@ -60,8 +60,8 @@ const commands = [
       },
       {
         name: 'imagem',
-        description: 'URL da imagem para o sorteio',
-        type: 3, // STRING
+        description: 'Imagem para o sorteio (anexada como arquivo)',
+        type: 11, // ATTACHMENT
         required: false,
       },
     ],
@@ -109,7 +109,7 @@ client.on('interactionCreate', async (interaction) => {
       const description = options.getString('descricao') || 'Nenhuma descrição fornecida.';
       const duration = options.getInteger('duracao');
       const winners = options.getInteger('vencedores');
-      const imageUrl = options.getString('imagem') || 'https://via.placeholder.com/500';
+      const imageAttachment = options.getAttachment('imagem');
 
       const giveawayId = `giveaway-${interaction.id}`;
       const participants = new Set();
@@ -118,15 +118,21 @@ client.on('interactionCreate', async (interaction) => {
       const remainingTime = Math.ceil((endTime - Date.now()) / 60000);
 
       const giveawayEmbed = new EmbedBuilder()
-        .setTitle(`🎉 Sorteio: ${title}`)
+        .setTitle(`**${title}**`)
         .setDescription(description)
         .setColor(0x00FF00)
-        .setImage(imageUrl)
-        .addFields(
-          { name: '⏳ Duração', value: `Termina em ${remainingTime} minuto(s)`, inline: true },
-          { name: '🏆 Vencedores', value: `${winners}`, inline: true }
-        )
         .setFooter({ text: `Participar clicando no botão abaixo!` });
+
+      // Add dynamic duration field with Discord's time formatting
+      giveawayEmbed.addFields(
+        { name: '⏳ Duração', value: `<t:${Math.floor(endTime.getTime() / 1000)}:R>`, inline: true },
+        { name: '🏆 Vencedores', value: `${winners}`, inline: true }
+      );
+
+      // Attach image if it exists
+      if (imageAttachment) {
+        giveawayEmbed.setImage(imageAttachment.url);
+      }
 
       const participateButton = new ButtonBuilder()
         .setCustomId(giveawayId)
@@ -250,36 +256,16 @@ client.on('interactionCreate', async (interaction) => {
     const updatedRow = new ActionRowBuilder().addComponents(updatedParticipateButton, updatedParticipantsButton);
 
     await giveawayData.interaction.editReply({
-      embeds: [giveawayData.interaction.message.embeds[0]],
-      components: [updatedRow],
+      components: [updatedRow]
     });
   }
 });
 
-// Select winners
-function selectWinners(participants, numWinners, guild) {
-  const winners = [];
-  const participantEntries = [];
-
-  participants.forEach(async (participantId) => {
-    const member = await guild.members.fetch(participantId);
-    if (member.roles.cache.has(specialRoleId)) {
-      for (let i = 0; i < 3; i++) {
-        participantEntries.push(member);
-      }
-    } else {
-      participantEntries.push(member);
-    }
-  });
-
-  while (winners.length < numWinners && participantEntries.length > 0) {
-    const randomIndex = Math.floor(Math.random() * participantEntries.length);
-    const winner = participantEntries.splice(randomIndex, 1)[0];
-    if (!winners.includes(winner)) {
-      winners.push(winner);
-    }
-  }
-
+function selectWinners(participants, numberOfWinners, guild) {
+  // Shuffle the participants array
+  const shuffled = participants.sort(() => 0.5 - Math.random());
+  // Pick the first `numberOfWinners` participants
+  const winners = shuffled.slice(0, numberOfWinners);
   return winners;
 }
 
