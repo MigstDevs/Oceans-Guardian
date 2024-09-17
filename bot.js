@@ -1,9 +1,10 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, AttachmentBuilder } = require('discord.js');
 const { config } = require('dotenv');
 const { setTimeout } = require('node:timers/promises');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const express = require('express');
+const { formatDuration } = require('discord.js');
 
 config(); // Load environment variables
 const app = express();
@@ -60,7 +61,7 @@ const commands = [
       },
       {
         name: 'imagem',
-        description: 'Imagem para o sorteio (anexada como arquivo)',
+        description: 'Imagem para o sorteio (anexo)',
         type: 11, // ATTACHMENT
         required: false,
       },
@@ -109,7 +110,7 @@ client.on('interactionCreate', async (interaction) => {
       const description = options.getString('descricao') || 'Nenhuma descrição fornecida.';
       const duration = options.getInteger('duracao');
       const winners = options.getInteger('vencedores');
-      const imageAttachment = options.getAttachment('imagem');
+      const imageUrl = options.getString('imagem') || '';
 
       const giveawayId = `giveaway-${interaction.id}`;
       const participants = new Set();
@@ -121,17 +122,14 @@ client.on('interactionCreate', async (interaction) => {
         .setTitle(`**${title}**`)
         .setDescription(description)
         .setColor(0x00FF00)
+        .addFields(
+          { name: '⏳ Duração', value: `<t:${Math.floor(endTime / 1000)}:R>`, inline: true },
+          { name: '🏆 Vencedores', value: `${winners}`, inline: true }
+        )
         .setFooter({ text: `Participar clicando no botão abaixo!` });
 
-      // Add dynamic duration field with Discord's time formatting
-      giveawayEmbed.addFields(
-        { name: '⏳ Duração', value: `<t:${Math.floor(endTime.getTime() / 1000)}:R>`, inline: true },
-        { name: '🏆 Vencedores', value: `${winners}`, inline: true }
-      );
-
-      // Attach image if it exists
-      if (imageAttachment) {
-        giveawayEmbed.setImage(imageAttachment.url);
+      if (imageUrl) {
+        giveawayEmbed.setImage(imageUrl);
       }
 
       const participateButton = new ButtonBuilder()
@@ -256,16 +254,30 @@ client.on('interactionCreate', async (interaction) => {
     const updatedRow = new ActionRowBuilder().addComponents(updatedParticipateButton, updatedParticipantsButton);
 
     await giveawayData.interaction.editReply({
-      components: [updatedRow]
+      embeds: [giveawayData.interaction.message.embeds[0]],
+      components: [updatedRow],
     });
   }
 });
 
-function selectWinners(participants, numberOfWinners, guild) {
-  // Shuffle the participants array
-  const shuffled = participants.sort(() => 0.5 - Math.random());
-  // Pick the first `numberOfWinners` participants
-  const winners = shuffled.slice(0, numberOfWinners);
+// Select winners
+function selectWinners(participants, numWinners, guild) {
+  const winners = [];
+  const participantEntries = [];
+
+  participants.forEach(async (participantId) => {
+    const member = await guild.members.fetch(participantId).catch(() => null);
+    if (member) {
+      participantEntries.push(member);
+    }
+  });
+
+  while (winners.length < numWinners && participantEntries.length > 0) {
+    const randomIndex = Math.floor(Math.random() * participantEntries.length);
+    const winner = participantEntries.splice(randomIndex, 1)[0];
+    winners.push(winner);
+  }
+
   return winners;
 }
 
