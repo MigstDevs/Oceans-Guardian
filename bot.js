@@ -135,9 +135,8 @@ client.on('interactionCreate', async (interaction) => {
 
       const participantsButton = new ButtonBuilder()
         .setCustomId(`${giveawayId}_participants`)
-        .setLabel(`Participantes: 0`)
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(true); // Grey disabled button
+        .setLabel('🧑Participantes')
+        .setStyle(ButtonStyle.Secondary);
 
       const row = new ActionRowBuilder().addComponents(participateButton, participantsButton);
 
@@ -200,10 +199,10 @@ client.on('interactionCreate', async (interaction) => {
     }
   }
 
-  // Handle button interaction for giveaway
+  // Handle button interaction for giveaway participants
   if (interaction.isButton()) {
     const giveawayId = interaction.customId;
-    const giveawayData = activeGiveaways.get(giveawayId);
+    const giveawayData = activeGiveaways.get(giveawayId.split('_')[0]);
 
     if (!giveawayData) {
       return interaction.reply({ content: 'O sorteio já terminou.', ephemeral: true });
@@ -211,6 +210,19 @@ client.on('interactionCreate', async (interaction) => {
 
     const userId = interaction.user.id;
     const participants = giveawayData.participants;
+
+    if (giveawayId.includes('_participants')) {
+      const participantList = Array.from(participants);
+      const participantMentions = participantList.length
+        ? participantList.map(p => `<@${p}>`).join('\n')
+        : 'Nenhum participante ainda.';
+
+      return interaction.reply({
+        content: `Tem ${participantList.length} participante(s) neste sorteio, que são:\n${participantMentions}`,
+        ephemeral: true,
+      });
+    }
+
     const oldParticipantCount = participants.size;
 
     if (participants.has(userId)) {
@@ -221,14 +233,14 @@ client.on('interactionCreate', async (interaction) => {
       await interaction.reply({ content: 'Você entrou no sorteio.', ephemeral: true });
     }
 
-    // Update the participant count on the disabled button
+    // Update the participant count on the "🧑Participantes" button
     const newParticipantCount = participants.size;
+
     if (oldParticipantCount !== newParticipantCount) {
       const updatedParticipantsButton = new ButtonBuilder()
         .setCustomId(`${giveawayId}_participants`)
-        .setLabel(`Participantes: ${newParticipantCount}`)
-        .setStyle(ButtonStyle.Secondary)
-        .setDisabled(true); // Grey disabled button
+        .setLabel('🧑Participantes')
+        .setStyle(ButtonStyle.Secondary);
 
       const updatedParticipateButton = new ButtonBuilder()
         .setCustomId(giveawayId)
