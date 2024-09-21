@@ -143,7 +143,7 @@ client.on('messageCreate', async (message) => {
 });
 
 client.on('interactionCreate', async (interaction) => {
-  if (interaction.isStringSelectMenu()) {
+  
     if (interaction.customId === 'ticket_select') {
       const { user } = interaction;
       let threadName = '';
@@ -177,7 +177,7 @@ client.on('interactionCreate', async (interaction) => {
         ephemeral: true,
       });
     }
-  }
+
   if (interaction.isCommand()) {
     const { commandName, options } = interaction;
     if (commandName === 'sorteio') {
