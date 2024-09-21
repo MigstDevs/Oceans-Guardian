@@ -98,12 +98,91 @@ client.on('ready', async () => {
   }
 });
 
+client.on('messageCreate', async (message) => {
+  if (message.content === "<@1271442133240516662> como seu dono eu te peço pra mandar o ticket aqui pls") {
+    const embed = new EmbedBuilder()
+      .setTitle("**TICKETS**")
+      .setDescription("Quer suporte? Quer fazer uma parceria? Seja o que for, faz um ticket!")
+      .setColor(0x00008B) // Dark blue color
+      .setImage('https://cdn.discordapp.com/icons/1269670073912524820/a_d21cbf9eeeca7ac43486245aa890b806.webp?size=96');
+    
+    const ticketMenu = new StringSelectMenuBuilder()
+      .setCustomId('ticket_select')
+      .setPlaceholder('Escolha uma opção para criar um ticket')
+      .addOptions([
+        {
+          label: 'Parcerias',
+          description: 'Abrir ticket para parcerias',
+          value: 'parcerias',
+          emoji: '🤝',
+        },
+        {
+          label: 'Suporte',
+          description: 'Abrir ticket para suporte',
+          value: 'suporte',
+          emoji: '💻',
+        },
+        {
+          label: 'Denúncias',
+          description: 'Abrir ticket para denúncias',
+          value: 'denuncias',
+          emoji: '🚨',
+        },
+        {
+          label: 'Patrocínio',
+          description: 'Abrir ticket para patrocínios',
+          value: 'patrocinio',
+          emoji: '💶',
+        },
+      ]);
+    
+    const row = new ActionRowBuilder().addComponents(ticketMenu);
+
+    await message.channel.send({ embeds: [embed], components: [row] });
+  }
+});
+
 client.on('interactionCreate', async (interaction) => {
+  if (interaction.isStringSelectMenu()) {
+    if (interaction.customId === 'ticket_select') {
+      const { user } = interaction;
+      let threadName = '';
+  
+      switch (interaction.values[0]) {
+        case 'parcerias':
+          threadName = `parceria-de-${user.username}`;
+          break;
+        case 'suporte':
+          threadName = `suporte-pra-${user.username}`;
+          break;
+        case 'denuncias':
+          threadName = `denuncia-de-${user.username}`;
+          break;
+        case 'patrocinio':
+          threadName = `patrocinio-de-${user.username}`;
+          break;
+      }
+  
+      const thread = await interaction.channel.threads.create({
+        name: threadName,
+        autoArchiveDuration: 2880,
+        reason: `Ticket criado pra ${interaction.values[0]}, criado por ${user.username}`,
+      });
+  
+      // Add only the user to the private thread
+      await thread.members.add(user.id);
+  
+      await interaction.reply({
+        content: `Ticket criado: ${threadName}.`,
+        ephemeral: true,
+      });
+    }
+  }
   if (interaction.isCommand()) {
     const { commandName, options } = interaction;
     if (commandName === 'sorteio') {
       const title = options.getString('titulo');
-      const description = options.getString('descricao') || 'Nenhuma descrição fornecida.';
+      const description = options.getString('descricao') || 'Nenhuma descrição fornecida.';s
       const duration = options.getInteger('duracao') * 60000; // Convert minutes to ms
       const winners = options.getInteger('vencedores');
       const imageUrl = options.getString('imagem') || null;
