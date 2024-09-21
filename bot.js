@@ -102,9 +102,9 @@ client.on('messageCreate', async (message) => {
   if (message.content === "ocean's guardian, manda o ticket, valeu") {
     const embed = new EmbedBuilder()
       .setTitle("**TICKETS**")
-      .setDescription("Quer suporte? Quer fazer uma parceria? Seja o que for, faz um ticket!")
+      .setDescription(":SoDeBoas: Quer suporte?\n\n :EuOdeioMensagens: Quer denunciar? 🤝 Quer fazer uma parceria? ✨ Seja o que for, faz um ticket! ✨")
       .setColor(0x00008B) // Dark blue color
-      .setImage('https://cdn.discordapp.com/icons/1269670073912524820/a_d21cbf9eeeca7ac43486245aa890b806.webp?size=96');
+      .setImage('https://cdn.discordapp.com/icons/1269670073912524820/a_d21cbf9eeeca7ac43486245aa890b806.webp?size=512');
     
     const ticketMenu = new StringSelectMenuBuilder()
       .setCustomId('ticket_select')
@@ -143,9 +143,8 @@ client.on('messageCreate', async (message) => {
 });
 
 client.on('interactionCreate', async (interaction) => {
-  
     if (interaction.customId === 'ticket_select') {
-      const { user } = interaction;
+      const { user } = interaction.user;
       let threadName = '';
   
       switch (interaction.values[0]) {
