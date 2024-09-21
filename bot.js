@@ -99,7 +99,7 @@ client.on('ready', async () => {
 });
 
 client.on('messageCreate', async (message) => {
-  if (message.content === "<@1271442133240516662> como seu dono eu te peço pra mandar o ticket aqui pls") {
+  if (message.content === "@Ocean's Guardian#4095 como seu dono eu te peço pra mandar o ticket aqui pls") {
     const embed = new EmbedBuilder()
       .setTitle("**TICKETS**")
       .setDescription("Quer suporte? Quer fazer uma parceria? Seja o que for, faz um ticket!")
