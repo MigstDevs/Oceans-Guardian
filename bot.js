@@ -288,7 +288,7 @@ const fs = require('fs');
 const path = './giveaways.json';
 
 // Load existing giveaways or initialize if not present
-let giveaways = fs.existsSync(path) ? JSON.parse(fs.readFileSync(path, 'utf8')) : {};
+let giveaways = JSON.parse(fs.readFileSync(path, 'utf8'));
 
 function saveGiveaways() {
   fs.writeFileSync(path, JSON.stringify(giveaways, null, 2));
