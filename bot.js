@@ -1,10 +1,10 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, StringSelectMenuBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection } = require('discord.js');
 const { config } = require('dotenv');
 const { setTimeout } = require('node:timers/promises');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const express = require('express');
-const { formatDuration } = require('discord.js');
+const fs = require('fs');
 
 config();
 const app = express();
@@ -74,7 +74,7 @@ const commands = [
       {
         name: 'message_id',
         description: 'ID da mensagem do sorteio',
-        type: 3, // STRING
+        type: 3,
         required: true,
       },
     ],
@@ -83,7 +83,7 @@ const commands = [
 
 const rest = new REST({ version: "10" }).setToken(token);
 
-const activeGiveaways = new Collection(); // Stores active giveaways and participants
+const activeGiveaways = new Collection();
 
 client.on('ready', async () => {
   console.log(`O bot está online como ${client.user.tag}`);
@@ -113,7 +113,7 @@ client.on('messageCreate', async (message) => {
     const ticketButton = new ButtonBuilder()
     .setCustomId(`ticket_select`)
     .setLabel('🎟️ Criar Ticket!')
-    .setStyle(ButtonStyle.Primary);
+    .setStyle(ButtonStyle.Success);
     
     const row = new ActionRowBuilder().addComponents(ticketButton);
 
@@ -126,8 +126,8 @@ client.on('interactionCreate', async (interaction) => {
     const { commandName, options } = interaction;
     if (commandName === 'sorteio') {
       const title = options.getString('titulo');
-      const description = options.getString('descricao') || 'Nenhuma descrição fornecida.';s
-      const duration = options.getInteger('duracao') * 60000; // Convert minutes to ms
+      const description = options.getString('descricao') || 'Nenhuma descrição fornecida.';
+      const duration = options.getInteger('duracao') * 60000;
       const winners = options.getInteger('vencedores');
       const imageUrl = options.getString('imagem') || null;
 
@@ -166,7 +166,6 @@ client.on('interactionCreate', async (interaction) => {
       await interaction.reply({ embeds: [giveawayEmbed], components: [row] });
     }
   } else if (interaction.isButton()) {
-
     if (interaction.customId === 'ticket_select') {
       const { user } = interaction.user;
       let threadName = `ticket-de-${user.username}`;
@@ -182,7 +181,7 @@ client.on('interactionCreate', async (interaction) => {
         content: `Ticket criado com êxito! Bora lá? <#${thread.id}>.`,
         ephemeral: true,
       });
-    } else if (interaction,customId === `${giveawayId}_participants`) {
+    } else if (interaction.customId.endsWith('_participants')) {
       const [giveawayId, action] = interaction.customId.split('_');
       const giveaway = giveaways[giveawayId];
   
@@ -246,37 +245,12 @@ function selectWinners(participants, numWinners, guild) {
   return winners;
 }
 
-const fs = require('fs');
 const path = './giveaways.json';
 
-// Load existing giveaways or initialize if not present
 let giveaways = JSON.parse(fs.readFileSync(path, 'utf8'));
 
 function saveGiveaways() {
-  fs.writeFileSync(path, JSON.stringify(giveaways, null, 2));
+  fs.writeFileSync(path, JSON.stringify(giveaways));
 }
-
-// Periodic check for giveaway expiration
-setInterval(async () => {
-  const now = Date.now();
-  for (const [id, data] of Object.entries(giveaways)) {
-    if (now >= data.endTime) {
-      const winners = selectWinners(Array.from(data.participants), data.winners);
-      const winnerMentions = winners.length ? winners.map(w => `<@${w}>`).join(', ') : 'Nenhum participante.';
-      const channel = client.channels.cache.get(data.channelId);
-
-      if (channel) {
-        const message = await channel.messages.fetch(data.messageId).catch(() => null);
-        if (message) {
-          await message.edit({ content: `🎉 O sorteio terminou! Vencedores: ${winnerMentions}`, components: [] });
-        }
-      }
-
-      delete giveaways[id];
-      saveGiveaways();
-    }
-  }
-}, 60000); // Check every minute
-
 
 client.login(token);
