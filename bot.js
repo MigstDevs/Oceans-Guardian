@@ -167,19 +167,33 @@ client.on('interactionCreate', async (interaction) => {
     }
   } else if (interaction.isButton()) {
     if (interaction.customId === 'ticket_select') {
-      const { user } = interaction.user;
-      let threadName = `ticket-de-${user.username}`;
-  
+      const { user } = interaction;
+      const threadName = `ticket-de-${user.username}`;
+
       const thread = await interaction.channel.threads.create({
         name: threadName,
+        type: 'GUILD_PRIVATE_THREAD',
         reason: `Ticket criado por ${user.username}`,
       });
-  
+
       await thread.members.add(user.id);
-  
-      await interaction.reply({
-        content: `Ticket criado com êxito! Bora lá? <#${thread.id}>.`,
-        ephemeral: true,
+
+      const ticketMessage = await thread.send({
+        content: `Ticket aberto! Quem abriu o ticket foi <@${user.id}>! Se você quiser fechar o ticket, reaja com "❌"!`,
+      });
+
+      await ticketMessage.react('❌');
+
+      const filter = (reaction, reactingUser) => {
+        return reaction.emoji.name === '❌' && (reactingUser.id === user.id || reactingUser.permissions.has('ADMINISTRATOR'));
+      };
+
+      const collector = ticketMessage.createReactionCollector({ filter });
+
+      collector.on('collect', async (reaction, reactingUser) => {
+        if (reactingUser.id === user.id || reactingUser.permissions.has('ADMINISTRATOR')) {
+          await thread.delete('Ticket fechado.');
+        }
       });
     } else if (interaction.customId.endsWith('_participants')) {
       const [giveawayId, action] = interaction.customId.split('_');
