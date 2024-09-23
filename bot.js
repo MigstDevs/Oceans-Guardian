@@ -172,8 +172,7 @@ client.on('interactionCreate', async (interaction) => {
 
       await interaction.reply({ embeds: [giveawayEmbed], components: [row] });
     }
-  } else if (interaction.isButton()) {
-    if (interaction.emoji === '🎟️') {
+  } else {
       const { user } = interaction;
       const threadName = `ticket-de-${user.username}`;
 
@@ -204,7 +203,7 @@ client.on('interactionCreate', async (interaction) => {
       });
 
       await interaction.reply(`Ticket aberto! Bora lá? <#${thread.id}>`)
-    } else if (interaction.customId.endsWith('_participants')) {
+     if (interaction.customId.endsWith('_participants')) {
       const [giveawayId, action] = interaction.customId.split('_');
       const giveaway = giveaways[giveawayId];
   
