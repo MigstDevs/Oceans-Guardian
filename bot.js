@@ -111,11 +111,18 @@ client.on('messageCreate', async (message) => {
       .setImage('https://cdn.discordapp.com/icons/1269670073912524820/a_d21cbf9eeeca7ac43486245aa890b806.webp?size=512');
     
     const ticketButton = new ButtonBuilder()
-    .setCustomId(`ticket_select`)
-    .setLabel('🎟️ Criar Ticket!')
+    .setCustomId(`ticket`)
+    .setLabel('Criar Ticket!')
+    .setEmoji("🎟️")
     .setStyle(ButtonStyle.Success);
+
+    const joinCommunity = new ButtonBuilder()
+    .setLabel('Entre na nossa comunidade!')
+    .setEmoji("💞")
+    .setURL("https://discord.gg/69uVwPR48Y")
+    .setStyle(ButtonStyle.Link);
     
-    const row = new ActionRowBuilder().addComponents(ticketButton);
+    const row = new ActionRowBuilder().addComponents(ticketButton, joinCommunity);
 
     await message.channel.send({ embeds: [embed], components: [row] });
   }
@@ -166,7 +173,7 @@ client.on('interactionCreate', async (interaction) => {
       await interaction.reply({ embeds: [giveawayEmbed], components: [row] });
     }
   } else if (interaction.isButton()) {
-    if (interaction.label === '🎟️ Criar Ticket!') {
+    if (interaction.customId === 'ticket') {
       const { user } = interaction;
       const threadName = `ticket-de-${user.username}`;
 
