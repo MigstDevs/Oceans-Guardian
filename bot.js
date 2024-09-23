@@ -166,7 +166,7 @@ client.on('interactionCreate', async (interaction) => {
       await interaction.reply({ embeds: [giveawayEmbed], components: [row] });
     }
   } else if (interaction.isButton()) {
-    if (interaction.customId === 'ticket_select') {
+    if (interaction.label === '🎟️ Criar Ticket!') {
       const { user } = interaction;
       const threadName = `ticket-de-${user.username}`;
 
