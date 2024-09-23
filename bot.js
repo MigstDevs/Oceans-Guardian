@@ -172,7 +172,11 @@ client.on('interactionCreate', async (interaction) => {
 
       await interaction.reply({ embeds: [giveawayEmbed], components: [row] });
     }
-  } else if (interaction.customId === 'ticket') {
+  }
+});
+
+client.on("clickButton", async (button) => {
+   if (interaction.customId === 'ticket') {
       const { user } = interaction;
       const threadName = `ticket-de-${user.username}`;
 
@@ -201,6 +205,8 @@ client.on('interactionCreate', async (interaction) => {
           await thread.delete('Ticket fechado.');
         }
       });
+
+      await button.reply(`Ticket aberto! Bora lá? <#${thread.id}>`)
     } else if (interaction.customId.endsWith('_participants')) {
       const [giveawayId, action] = interaction.customId.split('_');
       const giveaway = giveaways[giveawayId];
@@ -241,7 +247,7 @@ client.on('interactionCreate', async (interaction) => {
   
       saveGiveaways();
     }
-});
+})
 
 // Select winners
 function selectWinners(participants, numWinners, guild) {
