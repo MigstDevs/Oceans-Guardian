@@ -111,7 +111,7 @@ client.on('messageCreate', async (message) => {
       .setImage('https://cdn.discordapp.com/icons/1269670073912524820/a_d21cbf9eeeca7ac43486245aa890b806.webp?size=512');
     
     const ticketButton = new ButtonBuilder()
-    .setCustomId(`ticket`)
+    .setCustomId('ticket')
     .setLabel('Criar Ticket!')
     .setEmoji("🎟️")
     .setStyle(ButtonStyle.Success);
@@ -172,8 +172,7 @@ client.on('interactionCreate', async (interaction) => {
 
       await interaction.reply({ embeds: [giveawayEmbed], components: [row] });
     }
-  } else if (interaction.isButton()) {
-    if (interaction.customId === 'ticket') {
+  } else if (interaction.customId === 'ticket') {
       const { user } = interaction;
       const threadName = `ticket-de-${user.username}`;
 
@@ -242,7 +241,6 @@ client.on('interactionCreate', async (interaction) => {
   
       saveGiveaways();
     }
-  }
 });
 
 // Select winners
