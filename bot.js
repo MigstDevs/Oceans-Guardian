@@ -178,7 +178,7 @@ client.on('interactionCreate', async (interaction) => {
 
       const thread = await interaction.channel.threads.create({
         name: threadName,
-        type: 'GUILD_PRIVATE_THREAD',
+        type: 12,
         reason: `Ticket criado por ${user.username}`,
       });
 
