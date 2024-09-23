@@ -125,7 +125,15 @@ client.on('messageCreate', async (message) => {
     const row = new ActionRowBuilder().addComponents(ticketButton, joinCommunity);
 
     await message.channel.send({ embeds: [embed], components: [row] });
-  }
+  } else if (message.content === "-ticketf") {
+    const thread = message.channel;
+
+    if (thread.isThread()) {
+        await thread.delete('Ticket fechado por comando -ticketf.');
+    } else {
+      message.reply("Este comando só pode ser usado dentro de um ticket.");
+    }
+  } 
 });
 
 client.on('interactionCreate', async (interaction) => {
@@ -184,25 +192,9 @@ client.on('interactionCreate', async (interaction) => {
 
       await thread.members.add(user.id);
 
-      const ticketMessage = await thread.send({
-        content: `Ticket aberto! Quem abriu o ticket foi <@${user.id}>! Se você quiser fechar o ticket, reaja com "❌"!`,
-      });
+      await thread.send(`Ticket aberto! Quem abriu o ticket foi <@${user.id}>! Se você quiser fechar o ticket, mande "-ticketf"!`,);
 
-      await ticketMessage.react('❌');
-
-      const filter = (reaction, reactingUser) => {
-        return reaction.emoji.name === '❌' && (reactingUser.id === user.id || reactingUser.permissions.has('ADMINISTRATOR'));
-      };
-
-      const collector = ticketMessage.createReactionCollector({ filter });
-
-      collector.on('collect', async (reaction, reactingUser) => {
-        if (reactingUser.id === user.id || reactingUser.permissions.has('ADMINISTRATOR')) {
-          await thread.delete('Ticket fechado.');
-        }
-      });
-
-      await interaction.reply(`Ticket aberto! Bora lá? <#${thread.id}>`)
+      await interaction.reply({ content: `Ticket aberto! Bora lá? <#${thread.id}>`, ephemeral: true})
      if (interaction.customId.endsWith('_participants')) {
       const [giveawayId, action] = interaction.customId.split('_');
       const giveaway = giveaways[giveawayId];
