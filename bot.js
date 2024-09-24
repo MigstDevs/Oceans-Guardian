@@ -206,7 +206,7 @@ client.on('interactionCreate', async (interaction) => {
 
       await thread.members.add(user.id);
 
-      await thread.send(`Ticket aberto! Quem abriu o ticket foi <@${user.id}>! Se você quiser fechar o ticket, mande "-ticketf"!`,);
+      await thread.send(`Ticket aberto! Quem abriu o ticket foi <@${user.id}>! Se você quiser fechar o ticket, mande "-ticketf"!\n-# <@&1275887072195903559> Respondam ele, galera...`,);
 
       await interaction.reply({ content: `Ticket aberto! Bora lá? <#${thread.id}>`, ephemeral: true})
      if (interaction.customId.endsWith('_participants')) {
