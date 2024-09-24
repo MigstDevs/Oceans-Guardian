@@ -133,7 +133,21 @@ client.on('messageCreate', async (message) => {
     } else {
       message.reply("Este comando só pode ser usado dentro de um ticket.");
     }
-  } 
+  } else if (message.content === "a") {
+    message.reply("bcdefghijklmnopqrstuvwxyz")
+  } else if (message.content === "ata") {
+    message.reply("https://upload.wikimedia.org/wikipedia/pt/1/14/Ata_meme.jpg")
+  } else if (message.content === "<@1271442133240516662> tá on?") {
+    const randomMsg = Math.floor(Math.random() * 3);
+
+    if(randomMsg === 0) {
+      message.reply("😒 Claro que sim, pq não estaria? 😒")
+    } else if (randomMsg === 1) {
+      message.reply("Não, é claro que não... (Pera, então como que eu te respondi? AH ME PEGARAMMM)")
+    } else if (randomMsg === 2) {
+      message.reply("https://img-s-msn-com.akamaized.net/tenant/amp/entityid/BB1nX5Y7.img?w=600&h=451&m=6")
+    }
+  }
 });
 
 client.on('interactionCreate', async (interaction) => {
