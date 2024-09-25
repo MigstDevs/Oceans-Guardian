@@ -85,6 +85,17 @@ const rest = new REST({ version: "10" }).setToken(token);
 
 const activeGiveaways = new Collection();
 
+async function assignNitroRole(member) {
+  if (member.premiumSince) { // Checks if user has Nitro
+      const role = member.guild.roles.cache.get('1288567291490865152');
+      if (!member.roles.cache.has('1288567291490865152')) {
+          await member.roles.add(role).catch(console.error);
+      }
+  }
+}
+
+client.on('guildMemberAdd', assignNitroRole);
+
 client.on('ready', async () => {
   console.log(`O bot está online como ${client.user.tag}`);
   try {
@@ -96,6 +107,10 @@ client.on('ready', async () => {
   } catch (error) {
     console.error(error);
   }
+
+    const guild = client.guilds.cache.get('1269670073912524820');
+    const members = await guild.members.fetch();
+    members.forEach(assignNitroRole);
 });
 
 client.on('messageCreate', async (message) => {
